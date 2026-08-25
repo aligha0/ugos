@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0e766e">
+  <title>مرکز فرمان UGOS</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">پرش به محتوای اصلی</a>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="ناوبری اصلی">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><span>U</span></div>
+        <div><strong>مرکز فرمان</strong><small>UGOS · عملیات و تصمیم</small></div>
+      </div>
+      <nav class="nav-list">
+        <button class="nav-item active" data-view="overview"><span class="nav-icon">⌁</span>نمای کلی</button>
+        <button class="nav-item" data-view="inbox"><span class="nav-icon">✉</span>صندوق گزارش‌ها <b id="inboxBadge">۳</b></button>
+        <button class="nav-item" data-view="approvals"><span class="nav-icon">✓</span>کارتابل تأییدها <b id="approvalBadge">۱</b></button>
+        <button class="nav-item" data-view="tasks"><span class="nav-icon">☷</span>تسک‌های من</button>
+        <button class="nav-item" data-view="knowledge"><span class="nav-icon">◇</span>دانش و درس‌آموخته‌ها</button>
+        <button class="nav-item" data-view="operations"><span class="nav-icon">◌</span>مرکز عملیات</button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="workspace-select"><span class="avatar small">ع</span><div><strong>علی · مدیرعامل</strong><small>دسترسی: تصمیم نهایی</small></div><span>⌄</span></div>
+        <p>UGOS-001 · نسخهٔ اجرایی ۰٫۱</p>
+      </div>
+    </aside>
+
+    <main id="main" class="main-content" tabindex="-1">
+      <header class="topbar">
+        <div class="mobile-brand"><div class="brand-mark"><span>U</span></div><strong>UGOS</strong></div>
+        <div class="crumb"><span id="pageEyebrow">عملیات امروز</span><h1 id="pageTitle">نمای کلی</h1></div>
+        <div class="header-actions">
+          <label class="search"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="جست‌وجو در گزارش، پروژه یا تسک…"></label>
+          <button class="icon-button" aria-label="اعلان‌ها">♧<span class="notification-dot"></span></button>
+          <button class="new-report" id="newReportButton"><span>＋</span> گزارش جدید</button>
+        </div>
+      </header>
+
+      <section id="overview" class="view active" aria-labelledby="pageTitle">
+        <div class="lead-row">
+          <div><p class="date-line">سه‌شنبه، ۲۸ مرداد ۱۴۰۵</p><h2>از گزارش خام تا نتیجهٔ قابل پیگیری</h2><p>هر پرونده تا تفکیک واقعیت، تحلیل و فرض تکمیل نشود، وارد تصمیم و تخصیص تسک نمی‌شود.</p></div>
+          <button class="outline-button" id="showFlowButton">مشاهدهٔ منطق گردش‌کار <span>←</span></button>
+        </div>
+        <div class="metric-grid" id="metricGrid" aria-label="شاخص‌های کلیدی"></div>
+
+        <div class="content-grid overview-grid">
+          <section class="panel action-panel" aria-labelledby="decision-title">
+            <div class="panel-header"><div><span class="section-kicker critical">تصمیم نیازمند اقدام</span><h3 id="decision-title">تأخیر تأمین بتن · پروژه آفتاب</h3></div><button class="text-button" data-open-report="REP-1405-021">مشاهدهٔ پرونده ←</button></div>
+            <div class="decision-summary">
+              <div class="risk-strip"><span class="risk-dot critical"></span><div><strong>۲ روز تا اجرای بحرانی</strong><p>دو جبههٔ اجرایی و موعد تحویل بخش شمالی در معرض تأثیر هستند.</p></div></div>
+              <div class="decision-meta"><span><i>مالک</i> مدیر ساخت</span><span><i>مرحله</i> تأیید تصمیم</span><span><i>اطمینان AI</i> ۸۶٪</span></div>
+            </div>
+            <div class="decision-actions"><button class="secondary-button" data-open-report="REP-1405-021">بازبینی و نظر</button><button class="primary-button" id="quickApprove">تأیید مشروط مدیرعامل <span>←</span></button></div>
+          </section>
+
+          <section class="panel health-panel" aria-labelledby="health-title">
+            <div class="panel-header"><div><span class="section-kicker teal">پایش خودکار</span><h3 id="health-title">سلامت سامانه</h3></div><button class="text-button" data-view-link="operations">مرکز عملیات ←</button></div>
+            <div class="health-list" id="healthList"></div>
+            <div class="health-foot"><span class="live-dot"></span>همهٔ سرویس‌های حیاتی در دسترس‌اند <span>به‌روزرسانی: همین حالا</span></div>
+          </section>
+        </div>
+
+        <section class="panel reports-panel" aria-labelledby="recent-reports-title">
+          <div class="panel-header"><div><span class="section-kicker">ورودی‌ها</span><h3 id="recent-reports-title">گزارش‌های اخیر</h3></div><button class="text-button" data-view-link="inbox">همهٔ گزارش‌ها ←</button></div>
+          <div class="table-scroll"><table><thead><tr><th>پرونده</th><th>پروژه / گزارش‌دهنده</th><th>مرحلهٔ UGOS</th><th>اولویت</th><th>دریافت</th><th aria-label="عملیات"></th></tr></thead><tbody id="recentReports"></tbody></table></div>
+        </section>
+      </section>
+
+      <section id="inbox" class="view" aria-labelledby="inbox-title">
+        <div class="section-title"><div><span class="section-kicker">Gmail → AI → پروندهٔ تصمیم</span><h2 id="inbox-title">صندوق گزارش‌ها</h2><p>دادهٔ خام ابتدا اعتبارسنجی، سپس در قالب استاندارد UGOS ساختاربندی می‌شود.</p></div><div class="filter-row"><button class="filter active">همه</button><button class="filter">بحرانی</button><button class="filter">نیازمند اطلاعات</button></div></div>
+        <div class="panel inbox-list" id="inboxList"></div>
+      </section>
+
+      <section id="approvals" class="view" aria-labelledby="approvals-title">
+        <div class="section-title"><div><span class="section-kicker orange">کنترل مدیریتی</span><h2 id="approvals-title">کارتابل تأییدها</h2><p>پیشنهاد سیستم فقط «تصمیم‌سازی» می‌کند؛ صدور گردش‌کار پس از تأیید نقش‌های مجاز انجام می‌شود.</p></div></div>
+        <div id="approvalList" class="approval-grid"></div>
+      </section>
+
+      <section id="tasks" class="view" aria-labelledby="tasks-title">
+        <div class="section-title"><div><span class="section-kicker teal">مسئولیت تا نتیجه</span><h2 id="tasks-title">تسک‌ها و تعهدات</h2><p>هر تسک مالک، موعد، وابستگی و معیار پذیرش دارد؛ فعالیت بدون خروجی قابل پذیرش نیست.</p></div><button class="outline-button" id="taskFocusButton">فقط تسک‌های من</button></div>
+        <div class="kanban" id="kanban"></div>
+      </section>
+
+      <section id="knowledge" class="view" aria-labelledby="knowledge-title">
+        <div class="section-title"><div><span class="section-kicker purple">سرمایهٔ سازمانی</span><h2 id="knowledge-title">دانش و درس‌آموخته‌ها</h2><p>پرونده زمانی بسته می‌شود که نتیجه و یادگیری قابل استفاده برای پروژه‌های بعدی ثبت شده باشد.</p></div><button class="new-report" id="newKnowledgeButton">＋ ثبت درس‌آموخته</button></div>
+        <div class="knowledge-grid">
+          <article class="knowledge-card featured"><span class="doc-icon">◈</span><div><span class="tag teal">الگوی پیشگیرانه</span><h3>تأمین حیاتی بدون نقطهٔ شکست واحد</h3><p>الگوی SLA، ظرفیت رزرو، و تأمین‌کنندهٔ جایگزین برای اقلام مسیر بحرانی.</p><footer><span>وابسته به: تأمین، پروژه، کنترل پروژه</span><button class="text-button">مشاهده ←</button></footer></div></article>
+          <article class="knowledge-card"><span class="tag orange">درس‌آموخته</span><h3>مدیریت تغییر نقشه در مرحلهٔ اجرا</h3><p>سه گیت برای جلوگیری از پرت مصالح و اجراهای دوباره.</p><small>پروژه مهتاب · ۱۲ مرداد</small></article>
+          <article class="knowledge-card"><span class="tag purple">استاندارد</span><h3>چک‌لیست تحلیل ریسک تأخیر</h3><p>مالی، زمانی، قراردادی، کیفیت و ذی‌نفعان در یک قاب.</p><small>دفتر کنترل پروژه · ۸ مرداد</small></article>
+        </div>
+      </section>
+
+      <section id="operations" class="view" aria-labelledby="operations-title">
+        <div class="section-title"><div><span class="section-kicker teal">SRE · امنیت · مقیاس</span><h2 id="operations-title">مرکز عملیات</h2><p>پایش یکپارچهٔ جریان‌ها، ظرفیت و رخدادها؛ دسترسی عملیاتی از داشبورد تصمیم جداست.</p></div><button class="outline-button" id="refreshOps">↻ به‌روزرسانی وضعیت</button></div>
+        <div class="operations-grid">
+          <section class="panel ops-summary"><h3>وضعیت اجرای خودکار</h3><div class="big-health"><span class="live-dot"></span><strong>پایدار</strong><small>آخرین بررسی: همین حالا</small></div><div class="ops-bars"><div><span>Gmail Intake</span><b><i style="width:99%"></i></b><em>۹۹٫۹٪</em></div><div><span>AI Extraction</span><b><i style="width:96%"></i></b><em>۹۹٫۶٪</em></div><div><span>Task Dispatch</span><b><i style="width:98%"></i></b><em>۹۹٫۸٪</em></div></div></section>
+          <section class="panel ops-metrics"><h3>ظرفیت و محافظت</h3><div class="ops-metric-grid"><div><span>صف جاری</span><strong>۱۲</strong><small>هشدار در ۵۰</small></div><div><span>p95 پاسخ API</span><strong>۱٫۸s</strong><small>هدف: کمتر از ۳s</small></div><div><span>محدودسازی نرخ</span><strong>۸۴٪</strong><small>از ظرفیت مجاز</small></div><div><span>بکاپ اخیر</span><strong>۱۰:۰۰</strong><small>موفق</small></div></div></section>
+          <section class="panel event-feed"><div class="panel-header"><h3>رخدادها و ردگیری</h3><button class="text-button">مشاهدهٔ لاگ‌ها ←</button></div><ol><li><time>۱۰:۴۲</time><span class="event-good">●</span><div><strong>گزارش Gmail دریافت و ضدتکرار بررسی شد</strong><small>run_01J9Y… · REP-1405-021</small></div></li><li><time>۱۰:۴۳</time><span class="event-good">●</span><div><strong>استخراج هوشمند با اطمینان ۸۶٪ انجام شد</strong><small>مدل: GPT · trace: ai_8751</small></div></li><li><time>۱۰:۴۳</time><span class="event-warn">●</span><div><strong>گیت تأیید مدیرعامل در انتظار اقدام</strong><small>policy: UGOS-DECISION-04</small></div></li></ol></section>
+        </div>
+        <section class="panel architecture-strip"><div><span class="section-kicker">محیط تولید</span><h3>گاردریل‌های اجرایی</h3></div><div><span>WAF و Rate Limit</span><span>RBAC + MFA</span><span>PostgreSQL + Object Storage</span><span>Redis Queue</span><span>OpenTelemetry + Sentry</span><span>Multi-AZ + Backup</span></div><a href="docs/production-architecture.md" target="_blank">جزئیات معماری ←</a></section>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="reportDialog" aria-labelledby="reportDialogTitle">
+    <div class="dialog-header"><div><span class="section-kicker critical" id="dialogProject">پروژه</span><h2 id="reportDialogTitle">پروندهٔ تصمیم</h2><p id="dialogMeta"></p></div><button class="icon-button" id="closeDialog" aria-label="بستن">×</button></div>
+    <div class="decision-gate"><span>گیت UGOS</span><div><b class="gate-step done">۱</b><i></i><b class="gate-step done">۲</b><i></i><b class="gate-step active">۳</b><i></i><b class="gate-step">۴</b></div><small>واقعیت ← فهم مسئله ← تصمیم‌سازی ← اجرا</small></div>
+    <div class="dialog-content">
+      <section class="problem-head"><div><span class="status-pill critical" id="dialogPriority">بحرانی</span><h3 id="dialogSubject"></h3><p><strong>مسئلهٔ واقعی:</strong> <span id="dialogRootCause"></span></p></div><div class="confidence"><span>اطمینان استخراج</span><strong id="dialogConfidence">۸۶٪</strong></div></section>
+      <div class="truth-grid">
+        <section class="truth-card fact"><header><span>●</span> واقعیت‌های مستند</header><ul id="dialogFacts"></ul></section>
+        <section class="truth-card analysis"><header><span>◆</span> تحلیل سیستم</header><p id="dialogAnalysis"></p></section>
+        <section class="truth-card assumption"><header><span>?</span> فرض‌های نیازمند اعتبارسنجی</header><ul id="dialogAssumptions"></ul></section>
+      </div>
+      <section class="impact-section"><div class="impact-head"><h3>بررسی چندبعدی UGOS</h3><span>تصمیم تک‌بعدی مجاز نیست</span></div><div id="dialogImpacts" class="impact-grid"></div></section>
+      <section class="proposal-box"><span class="ai-label">پیشنهاد سیستم · نیازمند تأیید مدیر</span><h3>مسیر پیشنهادی</h3><p id="dialogProposal"></p><div class="proposal-note"><b>کنترل ضروری:</b> هزینه و ظرفیت جایگزین باید پیش از تعهد مالی اعتبارسنجی شود.</div></section>
+      <section class="approval-section"><div><h3>نظر و تأیید</h3><p>تصمیم، ثبت‌شدنی است؛ تأیید شفاهی معیار مجاز نیست.</p></div><div class="approver-row"><span class="avatar ceo">ع</span><div><strong>مدیرعامل</strong><small id="ceoState">در انتظار تصمیم</small></div><button class="secondary-button role-action" data-role="ceo">ثبت تأیید</button></div><div class="approver-row"><span class="avatar dept">س</span><div><strong>مدیر بخش</strong><small id="deptState">در انتظار تصمیم</small></div><button class="secondary-button role-action" data-role="department">ثبت تأیید</button></div></section>
+    </div>
+    <footer class="dialog-footer"><button class="danger-button" id="returnForData">ارجاع برای تکمیل داده</button><button class="primary-button" id="startWorkflow" disabled>صدور گردش‌کار و تسک <span>←</span></button></footer>
+  </dialog>
+
+  <dialog id="newReportDialog" class="mini-dialog" aria-labelledby="newReportTitle">
+    <div class="dialog-header"><div><span class="section-kicker teal">ثبت دستی آزمایشی</span><h2 id="newReportTitle">گزارش جدید</h2></div><button class="icon-button" data-close-mini aria-label="بستن">×</button></div>
+    <form id="newReportForm"><label>پروژه<input name="project" required placeholder="مثلاً پروژه آفتاب"></label><label>عنوان گزارش<input name="subject" required placeholder="مسئله یا نشانهٔ مشاهده‌شده"></label><label>واقعیت‌های مستند<textarea name="facts" required placeholder="هر واقعیت را در یک خط ثبت کنید"></textarea></label><p class="form-note">گزارش پس از ثبت وارد مرحلهٔ «نیازمند بررسی» می‌شود؛ تحلیل خودکار و تأیید انسانی جایگزین هم نیستند.</p><button class="primary-button" type="submit">ثبت و ورود به صف بررسی</button></form>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
