@@ -3,6 +3,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const {
+  MIN_SECRET_LENGTH,
   evaluateDecisionGate,
   approveReport,
   returnReport,
@@ -12,13 +13,19 @@ const {
 } = require('../lib/decision');
 const { resolveStaticPath } = require('../lib/static-path');
 
+const VALID_SECRET = 'a'.repeat(MIN_SECRET_LENGTH);
+
 function completeReport(overrides = {}) {
   return {
     id: 'REP-TEST',
     subject: 'تأخیر تأمین بتن',
+    problemStatement: 'کاهش ۵۰٪ ظرفیت تأمین‌کننده، بتن‌ریزی سقف طبقه ۸ را تهدید می‌کند.',
     owner: 'مدیر ساخت',
     stage: 'در انتظار تأیید',
-    facts: ['ظرفیت تأمین‌کننده نصف شده است.'],
+    facts: [
+      { content: 'ظرفیت روزانه از ۱۸۰ به ۹۰ مترمکعب کاهش یافته است.', source: 'ایمیل تأمین‌کننده', verified: true },
+      { content: 'بتن‌ریزی سقف طبقه ۸ در برنامهٔ مصوب ثبت شده است.', source: 'برنامه مبنا' }
+    ],
     assumptions: ['جایگزین در ۳۰ کیلومتری موجود است.'],
     rootCause: 'نقطه شکست واحد در تأمین.',
     impacts: { مالی: 'بالا', زمانی: 'بالا' },
@@ -35,7 +42,19 @@ test('گیت تصمیم با شواهد ناقص عبور نمی‌کند', () =
   assert.equal(gate.checks.approvalCompleted, false);
 });
 
-test('گیت تصمیم پس از شواهد، علت و دو تأیید عبور می‌کند', () => {
+test('صرف subject مسئله را تعریف‌شده حساب نمی‌کند', () => {
+  const gate = evaluateDecisionGate(completeReport({ problemStatement: '' }));
+  assert.equal(gate.checks.problemDefined, false);
+  assert.equal(gate.passed, false);
+});
+
+test('یک واقعیت بدون منبع و بدون تأیید کافی نیست', () => {
+  const gate = evaluateDecisionGate(completeReport({ facts: ['تأمین‌کننده گفته ظرفیت کم شده.'] }));
+  assert.equal(gate.evidence.count, 1);
+  assert.equal(gate.checks.evidenceSufficient, false);
+});
+
+test('گیت تصمیم پس از مسئله، شواهد باکیفیت، علت و دو تأیید عبور می‌کند', () => {
   const report = completeReport({ approvals: { ceo: 'تأیید شده', department: 'تأیید شده' } });
   const gate = evaluateDecisionGate(report);
   assert.equal(gate.passed, true);
@@ -96,11 +115,12 @@ test('وضعیت تسک فقط در توالی مجاز جلو می‌رود', (
   assert.equal(nextTaskStatus('انجام‌شده'), null);
 });
 
-test('وب‌هوک بدون secret در حالت الزامی رد می‌شود', () => {
+test('وب‌هوک secret کوتاه حتی در صورت برابری رد می‌شود', () => {
   assert.equal(verifyWebhookSecret('', '', { requireSecret: true }), false);
   assert.equal(verifyWebhookSecret('', '', { requireSecret: false }), true);
-  assert.equal(verifyWebhookSecret('abc', 'abc'), true);
-  assert.equal(verifyWebhookSecret('abc', 'abd'), false);
+  assert.equal(verifyWebhookSecret('abc', 'abc'), false);
+  assert.equal(verifyWebhookSecret(VALID_SECRET, VALID_SECRET), true);
+  assert.equal(verifyWebhookSecret(VALID_SECRET, `${VALID_SECRET}x`), false);
 });
 
 test('resolveStaticPath از خروج از ریشه جلوگیری می‌کند', () => {

@@ -37,6 +37,8 @@ npm test
 - `lib/static-path.js`: محدودسازی مسیر فایل‌های استاتیک
 - `index.html`, `app.css`, `app.js`: رابط کاربری فارسی
 - `n8n/UGOS-Report-Intake.workflow.json`: الگوی واردشدنی در n8n برای ساخت جریان Intake؛ پیش از اجرای واقعی Credentialها، مدل و URL باید پیکربندی شوند.
+- `docs/domain-model.md`: هسته دامنه (Case، Evidence، Problem، Decision)
+- `docs/state-machine.md`: وضعیت‌ها و نگهبان انتقال
 - `docs/production-architecture.md`: معماری، امنیت، CI/CD و برنامهٔ استقرار
 - `docs/api-contract.md`: قرارداد API و وضعیت‌های جریان کار
 - `test/decision.test.js`: آزمون واحد گیت تصمیم و path traversal

@@ -13,7 +13,7 @@ n8n، Gmail و مدل زبانی ابزار پیرامونی‌اند، نه ه�
 ## لایه‌ها
 
 ```
-UGOS Core          Reports, Decisions, Approvals, Tasks, Audit, Knowledge
+UGOS Core          Case, Evidence, Problem, Decision, Approval, Task, Outcome, Audit
 Intelligence       استخراج، ساختاربندی، اطمینان، بازبینی انسانی
 Automation         n8n / Gmail / Slack / Webhooks
 ```
@@ -30,7 +30,7 @@ Automation         n8n / Gmail / Slack / Webhooks
 | وب‌هوک | secret اختیاری در توسعه | secret اجباری، حداقل ۳۲ نویسه |
 | مشاهده‌پذیری | اعداد نمایشی | Logs + Metrics + Traces |
 
-اگر `NODE_ENV=production` باشد و `N8N_WEBHOOK_SECRET` خالی باشد، وب‌هوک Intake رد می‌شود.
+اگر `NODE_ENV=production` باشد، `N8N_WEBHOOK_SECRET` باید حداقل ۳۲ بایت باشد؛ در غیر این صورت وب‌هوک Intake رد می‌شود. secret کوتاه حتی در توسعه اگر مقداردهی شده باشد پذیرفته نمی‌شود.
 
 ## کنترل‌های امنیتی حداقل
 
@@ -47,7 +47,7 @@ Automation         n8n / Gmail / Slack / Webhooks
 1. سرویس API پشت reverse proxy
 2. پایگاه داده جدا با مهاجرت نسخه‌دار
 3. n8n در شبکهٔ خصوصی؛ فقط به `/api/webhooks/n8n/report` دسترسی داشته باشد
-4. CI: lint + `npm test` قبل از merge
+4. CI: فعلاً `npm test`؛ lint وقتی پیکربندی استاندارد اضافه شود
 5. Staging با دادهٔ مصنوعی، سپس production
 
 ## CI/CD حداقلی
