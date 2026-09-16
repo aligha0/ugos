@@ -6,9 +6,12 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const { approveReport, returnReport, setTaskStatus, verifyWebhookSecret } = require('./lib/decision');
+const { resolveStaticPath } = require('./lib/static-path');
 
 const PORT = Number(process.env.PORT || 8787);
 const WEBHOOK_SECRET = process.env.N8N_WEBHOOK_SECRET || '';
+const REQUIRE_WEBHOOK_SECRET = process.env.NODE_ENV === 'production' || WEBHOOK_SECRET.length > 0;
 const ROOT = __dirname;
 
 const reports = [
@@ -94,10 +97,16 @@ function body(req) {
 }
 
 function readStatic(urlPath, res) {
-  const requested = urlPath === '/' ? '/index.html' : urlPath;
-  const file = path.normalize(path.join(ROOT, requested));
-  if (!file.startsWith(ROOT) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) return false;
-  const type = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.md': 'text/markdown; charset=utf-8' }[path.extname(file)] || 'application/octet-stream';
+  const file = resolveStaticPath(ROOT, urlPath);
+  if (!file || !fs.existsSync(file) || fs.statSync(file).isDirectory()) return false;
+  const type = {
+    '.html': 'text/html; charset=utf-8',
+    '.js': 'application/javascript; charset=utf-8',
+    '.css': 'text/css; charset=utf-8',
+    '.svg': 'image/svg+xml',
+    '.json': 'application/json; charset=utf-8',
+    '.md': 'text/markdown; charset=utf-8'
+  }[path.extname(file)] || 'application/octet-stream';
   res.writeHead(200, { 'content-type': type, 'x-content-type-options': 'nosniff', 'referrer-policy': 'same-origin' });
   fs.createReadStream(file).pipe(res);
   return true;
@@ -126,38 +135,56 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'POST' && approval) {
       const payload = await body(req);
       const report = reports.find(x => x.id === approval[1]);
-      if (!report || !['ceo', 'department'].includes(payload.role)) return send(res, 404, { error: 'پرونده یا نقش معتبر نیست.' });
-      report.approvals[payload.role] = 'تأیید شده';
-      if (report.approvals.ceo === 'تأیید شده' && report.approvals.department === 'تأیید شده') report.stage = 'گردش‌کار فعال';
-      return send(res, 200, { data: report, auditId: crypto.randomUUID() });
+      const result = approveReport(report, payload.role);
+      if (!result.ok) return send(res, result.status, { error: result.error, gate: result.gate });
+      return send(res, 200, { data: result.report, auditId: crypto.randomUUID(), gate: result.gate });
     }
 
     const returnForData = url.pathname.match(/^\/api\/reports\/([^/]+)\/return$/);
     if (req.method === 'POST' && returnForData) {
       const payload = await body(req);
       const report = reports.find(x => x.id === returnForData[1]);
-      if (!report) return send(res, 404, { error: 'پرونده یافت نشد.' });
-      report.stage = 'نیازمند اطلاعات';
-      report.approvals.department = `ارجاع: ${String(payload.comment || 'بدون توضیح')}`;
-      return send(res, 200, { data: report });
+      const result = returnReport(report, payload.comment);
+      if (!result.ok) return send(res, result.status, { error: result.error });
+      return send(res, 200, { data: result.report });
     }
 
     const changeTask = url.pathname.match(/^\/api\/tasks\/([^/]+)\/status$/);
     if (req.method === 'POST' && changeTask) {
       const payload = await body(req);
       const task = tasks.find(x => x.id === changeTask[1]);
-      if (!task || !['برای شروع', 'در حال انجام', 'بازبینی', 'انجام‌شده'].includes(payload.status)) return send(res, 400, { error: 'وضعیت تسک معتبر نیست.' });
-      task.status = payload.status;
-      return send(res, 200, { data: task });
+      const result = setTaskStatus(task, payload.status);
+      if (!result.ok) return send(res, result.status, { error: result.error });
+      return send(res, 200, { data: result.task });
     }
 
     if (req.method === 'POST' && url.pathname === '/api/webhooks/n8n/report') {
-      const suppliedSecret = Buffer.from(String(req.headers['x-ugos-webhook-secret'] || ''));
-      const expectedSecret = Buffer.from(WEBHOOK_SECRET);
-      if (WEBHOOK_SECRET && (suppliedSecret.length !== expectedSecret.length || !crypto.timingSafeEqual(suppliedSecret, expectedSecret))) return send(res, 401, { error: 'وب‌هوک مجاز نیست.' });
+      const allowed = verifyWebhookSecret(req.headers['x-ugos-webhook-secret'], WEBHOOK_SECRET, {
+        requireSecret: REQUIRE_WEBHOOK_SECRET
+      });
+      if (!allowed) return send(res, 401, { error: 'وب‌هوک مجاز نیست.' });
       const payload = await body(req);
-      if (!payload.subject || !payload.project || !Array.isArray(payload.facts)) return send(res, 422, { error: 'project، subject و facts الزامی هستند.' });
-      const report = { id: `REP-${Date.now()}`, project: payload.project, subject: payload.subject, sender: payload.sender || 'n8n', receivedAt: 'همین حالا', owner: payload.owner || 'مدیر پروژه', priority: payload.priority || 'مهم', stage: 'نیازمند بررسی', confidence: Number(payload.confidence || 0), facts: payload.facts, analysis: payload.analysis || 'در انتظار تحلیل', assumptions: payload.assumptions || [], rootCause: payload.rootCause || 'در انتظار بررسی', proposal: payload.proposal || 'در انتظار پیشنهاد', impacts: payload.impacts || {}, approvals: { ceo: 'در انتظار', department: 'در انتظار' } };
+      if (!payload.subject || !payload.project || !Array.isArray(payload.facts)) {
+        return send(res, 422, { error: 'project، subject و facts الزامی هستند.' });
+      }
+      const report = {
+        id: `REP-${Date.now()}`,
+        project: payload.project,
+        subject: payload.subject,
+        sender: payload.sender || 'n8n',
+        receivedAt: 'همین حالا',
+        owner: payload.owner || 'مدیر پروژه',
+        priority: payload.priority || 'مهم',
+        stage: 'نیازمند بررسی',
+        confidence: Number(payload.confidence || 0),
+        facts: payload.facts,
+        analysis: payload.analysis || 'در انتظار تحلیل',
+        assumptions: payload.assumptions || [],
+        rootCause: payload.rootCause || 'در انتظار بررسی',
+        proposal: payload.proposal || 'در انتظار پیشنهاد',
+        impacts: payload.impacts || {},
+        approvals: { ceo: 'در انتظار', department: 'در انتظار' }
+      };
       reports.unshift(report);
       return send(res, 201, { data: report });
     }
@@ -169,4 +196,8 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => console.log(`UGOS Control Center: http://localhost:${PORT}`));
+if (require.main === module) {
+  server.listen(PORT, () => console.log(`UGOS Control Center: http://localhost:${PORT}`));
+}
+
+module.exports = { server, reports, tasks };
